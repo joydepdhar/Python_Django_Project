@@ -1,6 +1,7 @@
-{% extends "todoapp/base.html" %} 
+{% extends 'todoapp/base.html' %}
 
 {% block title %}Home{% endblock %}
+
 {% block content %}
 <div class="container mx-auto mt-20 px-6 text-center">
   <!-- Main Heading -->
@@ -16,18 +17,16 @@
 
   <!-- Call-to-Action Buttons -->
   <div class="mt-8 flex justify-center space-x-4">
-    <a href="#"
+    <a href="{% url 'register' %}"
       class="px-8 py-3 bg-indigo-600 text-white text-lg font-semibold rounded-lg shadow-lg hover:bg-indigo-700 transition duration-300">
       Register
     </a>
-    <a href="#"
+    <a href="{% url 'login' %}"
       class="px-8 py-3 border border-indigo-600 text-indigo-600 text-lg font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition duration-300">
       Login
     </a>
   </div>
 </div>
 
-
-    {% include "todoapp/footer.html" %}
+{% include "todoapp/footer.html" %}
 {% endblock %}
-

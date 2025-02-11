@@ -1,0 +1,77 @@
+[
+    {
+        "model": "todoapp.category",
+        "pk": 1,
+        "fields": {
+            "name": "Work",
+            "description": "Work related tasks",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "todoapp.category",
+        "pk": 4,
+        "fields": {
+            "name": "Personal",
+            "description": "Personal tasks and errands",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "todoapp.category",
+        "pk": 3,
+        "fields": {
+            "name": "Study",
+            "description": "Learning and educational tasks",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "todoapp.task",
+        "pk": 4,
+        "fields": {
+            "title": "Complete Project Proposal",
+            "description": "Write and submit the Q1 project proposal",
+            "category": 1,
+            "priority": "high",
+            "status": "pending",
+            "due_date": "2024-01-15",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "user": 1
+        }
+    },
+    {
+        "model": "todoapp.task",
+        "pk": 4,
+        "fields": {
+            "title": "Gym Session",
+            "description": "1 hour workout at the gym",
+            "category": 2,
+            "priority": "medium",
+            "status": "in_progress",
+            "due_date": "2024-01-10",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "user": 2
+        }
+    },
+    {
+        "model": "todoapp.task",
+        "pk": 4,
+        "fields": {
+            "title": "Learn Django REST Framework",
+            "description": "Complete the DRF tutorial",
+            "category": 3,
+            "priority": "high",
+            "status": "pending",
+            "due_date": "2024-01-20",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "user": 2
+        }
+    }
+]
