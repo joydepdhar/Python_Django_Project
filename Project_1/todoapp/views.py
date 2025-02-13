@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegistrationForm, TaskForm
-
+from .forms import UserRegistrationForm, TaskForm,UserUpdateForm
+from django.contrib import messages
 from django.contrib.auth import login
 from .models import Task
 # Create your views here.
@@ -72,3 +72,30 @@ def task_delete(request, pk):
     if request.method == 'POST':
         task.delete()
     return redirect('dashboard')
+
+from django.shortcuts import render
+
+@login_required
+def profile(request):
+    user = request.user
+    context = {
+        'user': user,
+    }
+    return render(request, 'todoapp/profile.html', context)
+
+@login_required
+def update_account(request):
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            user=form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            messages.success(request, 'Your account has been updated successfully!')
+            return redirect('dashboard')  # Redirect to dashboard or profile
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = UserUpdateForm(instance=request.user)
+
+    return render(request, 'todoapp/update_account.html', {'form': form, 'user_name': request.user.get_full_name() or request.user.username})

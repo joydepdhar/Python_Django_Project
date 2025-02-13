@@ -27,7 +27,19 @@ class UserRegistrationForm(UserCreationForm):
                 'class':'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
             })
         }
-        
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'password']
+        widgets = {
+            'email': forms.EmailInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
+            }),
+            'password': forms.PasswordInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm'
+            }),
+        }
+
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
