@@ -1,0 +1,122 @@
+{% extends "layouts/main_layout.html" %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h2 class="text-2xl font-bold mb-4">Your Feed</h2>
+
+    <!-- Create Post Link -->
+    <a href="{% url 'create_post' %}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md mb-4 hover:bg-blue-700 transition">
+        ➕ Create Post
+    </a>
+
+    <!-- Display Posts -->
+    {% for post in posts %}
+    <div class="bg-white p-4 rounded-lg shadow-md mb-4 border border-gray-200">
+        
+        <!-- User Info -->
+        <div class="flex items-center space-x-3 mb-3">
+            <img src="{% if post.user.userprofile and post.user.userprofile.profile_picture %}{{ post.user.userprofile.profile_picture.url }}{% else %}{% static 'default-profile.jpg' %}{% endif %}" 
+     alt="Profile Image" class="w-10 h-10 rounded-full border object-cover">
+
+
+            <div>
+                <p class="text-gray-900 font-semibold">{{ post.user.username }}</p>
+                <p class="text-sm text-gray-500">{{ post.created_at|date:"M d, Y" }} at {{ post.created_at|time:"H:i" }}</p>
+            </div>  
+        </div>
+
+        <!-- Post Content -->
+        <p class="text-gray-800">{{ post.text }}</p>
+
+        <!-- Post Image -->
+        {% if post.image %}
+        <img src="{{ post.image.url }}" class="mt-3 rounded-lg w-full object-cover max-h-96">
+        {% endif %}
+
+        <!-- Like & Comment Section -->
+        {% if user.is_authenticated %}
+        <div class="flex items-center justify-between mt-4">
+            
+            <!-- Like Button -->
+            <form method="POST" action="{% url 'like_post' post.id %}">
+                {% csrf_token %}
+                <button type="submit" class="flex items-center space-x-2 text-gray-600 hover:text-red-500 transition">
+                    <svg class="w-6 h-6 {% if user in post.likes.all %}text-red-500{% endif %}" 
+                         fill="{% if user in post.likes.all %}currentColor{% else %}none{% endif %}" 
+                         stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21l8.84-8.61a5.5 5.5 0 0 0 0-7.78z">
+                        </path>
+                    </svg>
+                    <span>{{ post.likes.count }} {% if post.likes.count == 1 %}Like{% else %}Likes{% endif %}</span>
+                </button>
+            </form>
+
+            <!-- Comment Toggle Button -->
+            <button onclick="toggleComment('{{ post.id }}')" class="text-gray-600 hover:text-blue-600 transition">
+                💬 {{ post.comments.count }} Comments
+            </button>
+        </div>
+
+        <!-- Comment Section -->
+        <div id="comment-section-{{ post.id }}" class="hidden mt-4 border-t pt-3">
+            <!-- Add New Comment Form -->
+            <form method="POST" action="{% url 'comment_post' post.id %}" class="mt-2 flex items-center space-x-2">
+                {% csrf_token %}
+                <textarea name="comment" placeholder="Write a comment..." class="flex-grow p-2 border rounded-md"></textarea>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Post</button>
+            </form>
+
+            <!-- Display Comments -->
+            <div class="mt-3 space-y-2">
+                {% for comment in post.comments.all %}
+                <div class="p-3 border-l-4 border-gray-300 bg-gray-50 rounded flex justify-between items-center">
+                    <p class="text-sm">
+                        <strong>{{ comment.user.username }}</strong>: 
+                        <span id="comment-text-{{ comment.id }}">{{ comment.text }}</span>
+                    </p>
+
+                    {% if comment.user == request.user %}
+                    <button onclick="toggleEditForm('{{ comment.id }}')" class="text-blue-600 text-sm hover:underline">✏️ Edit</button>
+                    {% endif %}
+                </div>
+
+                <!-- Edit Comment Form (Initially Hidden) -->
+                <form id="edit-comment-form-{{ comment.id }}" method="POST" action="{% url 'edit_comment' comment.id %}" class="hidden mt-2">
+                    {% csrf_token %}
+                    <input type="text" name="comment_text" value="{{ comment.text }}" class="w-full p-2 border rounded-md">
+                    <div class="flex justify-end space-x-2 mt-2">
+                        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700">Save</button>
+                        <button type="button" onclick="toggleEditForm('{{ comment.id }}')" class="text-gray-600 text-sm hover:underline">Cancel</button>
+                    </div>
+                </form>
+                {% empty %}
+                <p class="text-sm text-gray-500">No comments yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Show Message for Guests -->
+        <p class="text-gray-500 mt-3">Login to like and comment on posts.</p>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p class="text-gray-500">No posts yet.</p>
+    {% endfor %}
+</div>
+
+<!-- Toggle Comment and Edit Forms -->
+<script>
+function toggleComment(postId) {
+    let section = document.getElementById(`comment-section-${postId}`);
+    section.classList.toggle('hidden');
+}
+
+function toggleEditForm(commentId) {
+    let editForm = document.getElementById(`edit-comment-form-${commentId}`);
+    editForm.classList.toggle('hidden');
+}
+</script>
+{% endblock %}
