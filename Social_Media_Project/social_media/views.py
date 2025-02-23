@@ -84,36 +84,50 @@ def edit_comment(request, comment_id):
     return redirect('home')
 @login_required
 def search_view(request):
-    query = request.GET.get('q', '').strip()  # Get search query
-    user_results = []  # List for users and their posts
+    query = request.GET.get('q', '').strip()
+    filter_user = request.GET.get('user', '').strip()
+    filter_media = request.GET.get('media', '').strip()
+    sort_by = request.GET.get('sort', 'newest')  
+
+    user_results = []  
+    post_results = Post.objects.all()
 
     if query:
         # Find users matching the query
         users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query))
+        
+        for user in users:
+            user_profile = getattr(user, "userprofile", None)
+            profile_picture = user_profile.profile_picture.url if user_profile and user_profile.profile_picture else "/media/profile_images/default.jpg"
+            posts = Post.objects.filter(user=user).order_by('-created_at')
+            
+            user_results.append({
+                "user": user,
+                "profile_picture": profile_picture,
+                "posts": posts,
+            })
+        
+        # Search for posts containing the query in content
+        post_results = post_results.filter(text__icontains=query)
 
-        if users.exists():
-            for user in users:
-                # Fetch user's profile picture (handle missing profile)
-                user_profile = getattr(user, "userprofile", None)
-                profile_picture = user_profile.profile_picture.url if user_profile and user_profile.profile_picture else "/media/profile_images/default.jpg"
+    # Apply user filter
+    if filter_user:
+        post_results = post_results.filter(user__username__icontains=filter_user)
 
-                # Fetch user posts
-                posts = Post.objects.filter(user=user).order_by('-created_at')
-                post_list = []
-                for post in posts:
-                    post_list.append({
-                        "text": post.text,
-                        "image": post.image.url if post.image else None,
-                        "created_at": post.created_at,
-                    })
+    # Apply media type filter
+    if filter_media == "with_images":
+        post_results = post_results.exclude(image__isnull=True).exclude(image__exact='')
+    elif filter_media == "without_images":
+        post_results = post_results.filter(Q(image__isnull=True) | Q(image__exact=''))
 
-                user_results.append({
-                    "user": user,
-                    "profile_picture": profile_picture,
-                    "posts": post_list,
-                })
+    # Apply sorting (debugging date issue)
+    if sort_by == "oldest":
+        post_results = post_results.order_by("created_at")
+    else:
+        post_results = post_results.order_by("-created_at")
 
-        else:
-            return render(request, "search_results.html", {"error": "No matching users found"})
-
-    return render(request, "search_results.html", {"query": query, "user_results": user_results})
+    return render(request, "search_results.html", {
+        "query": query,
+        "user_results": user_results,
+        "post_results": post_results,
+    })
